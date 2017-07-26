@@ -1,0 +1,72 @@
+#! /bin/bash 
+set -e
+
+exec 3>&1 # make stdout available as fd 3 for the result
+#exec 1>&2 # redirect all output to stderr for logging
+exec 1>/var/log/in.log
+DESTINATION_DIR="$1"
+INPUT="$(cat)"
+
+getParameter() {
+  echo "$INPUT" | jq --raw-output $1
+}
+
+
+echo $INPUT
+
+echo "--------------------in--------------------------"
+
+# from version
+VERSION="$(getParameter .version.version)"
+
+
+if [[ "$(getParameter .source.get)" != null ]]; then
+
+  GET_PASSWORD="$(getParameter .source.get.password)"
+  GET_USERNAME="$(getParameter .source.get.username)"
+  REPOSITORY="$(getParameter .source.get.repository)"
+  GROUP="$(getParameter .source.get.group)"
+  ARTIFACT="$(getParameter .source.get.artifact)"
+  CLASSIFIER="$(getParameter .source.get.classifier)"
+  PACKAGING="$(getParameter .source.get.packaging)"
+  FILE_NAME="$(getParameter .source.get.fileName)"
+
+  if [[ "$CLASSIFIER" != null ]]; then
+    CLASSIFIER_SUFFIX="-$CLASSIFIER"
+  fi
+
+  if [[ "$PACKAGING" == null ]]; then
+    PACKAGING="jar"
+  fi
+
+  ARTIFACT_FILE_NAME="${ARTIFACT}-${VERSION}${CLASSIFIER_SUFFIX}.${PACKAGING}"
+  ARTIFACT_URL="${REPOSITORY}/${GROUP//.//}/${ARTIFACT}/${VERSION}/${ARTIFACT_FILE_NAME}"
+  [[ "$FILE_NAME" == null ]] && FILE_NAME=$ARTIFACT_FILE_NAME
+  curl -u "$GET_USERNAME:$GET_PASSWORD" --fail --output "$DESTINATION_DIR/$FILE_NAME" "$ARTIFACT_URL"
+  echo "${VERSION}" > "$DESTINATION_DIR/version"
+
+
+
+elif [[ "$(getParameter .source.cache)" != null ]]; then
+  set +e
+  CACHE_USERNAME="$(getParameter .source.cache.username)"
+  CACHE_PASSWORD="$(getParameter .source.cache.password)"
+  CACHE_SERVER="$(getParameter .source.cache.server)"
+  CACHE_PATH="$(getParameter .source.cache.path)"
+  CACHE_FILE="$(getParameter .source.cache.file)"
+  VERSION=1
+  [[ "$CACHE_USERNAME" != null ]] && curl -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "$CACHE_FILE" "$CACHE_SERVER$CACHE_PATH$CACHE_FILE"
+  [[ "$CACHE_USERNAME" != null ]] && curl -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "${CACHE_FILE}.space" "$CACHE_SERVER$CACHE_PATH${CACHE_FILE}.space"
+  [ -e "$CACHE_FILE" ] && mkdir -p $DESTINATION_DIR/M2_REPO/repository &&  tar -xvzf $CACHE_FILE -C $DESTINATION_DIR/M2_REPO/repository && rm $CACHE_FILE
+  [ -e "${CACHE_FILE}.space" ] && VERSION=`cat "${CACHE_FILE}.space"` 
+  set -e
+fi
+
+if [[ "$VERSION" = null ]] || [ "$VERSION" = "" ]; then
+VERSION=1
+fi
+
+jq -n "{
+  version: { version: \"$VERSION\" }
+}" >&3
+
