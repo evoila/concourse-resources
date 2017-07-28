@@ -37,3 +37,4 @@ xmlstarlet ed $CREATE_NOTES $2
 if [[ ! -z $save_line ]]; then
   sed -i -e "s#$replace vcb=\"wefzug\">#$save_line#g"  $2
 fi
+

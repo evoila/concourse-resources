@@ -26,4 +26,3 @@ XmlCreateElments $INPUT $1
 if [[ ! -z $save_line ]]; then
   sed -i -e "s#$replace vcb=\"wefzug\">#$save_line#g"  $1
 fi
-
