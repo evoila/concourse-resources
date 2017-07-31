@@ -70,6 +70,7 @@ if [[ "$(getParameter .source.pom.add)" != null ]]; then
   while IFS= read -r key &&
         IFS= read -r value; do
   if [ "$key" == "file" ]; then
+    value="$(tr -d "\0" <<<"$value")"
     filename=$(basename "$value")
     extension="${filename##*.}"
     [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$POM"
@@ -78,6 +79,7 @@ if [[ "$(getParameter .source.pom.add)" != null ]]; then
     echo "$value" | addJsonXML.sh "$POM"
   else
     if [ -f "$value" ]; then
+      key="$(tr -d "\0" <<<"$key")"
       filename=$(basename "$value")
       extension="${filename##*.}"
       [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$key"
@@ -94,6 +96,7 @@ if [[ "$(getParameter .params.pom.add)" != null ]]; then
   while IFS= read -r key &&
         IFS= read -r value; do
    if [ "$key" == "file" ]; then
+    value="$(tr -d "\0" <<<"$value")"
     filename=$(basename "$value")
     extension="${filename##*.}"
     [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$POM"
@@ -102,6 +105,7 @@ if [[ "$(getParameter .params.pom.add)" != null ]]; then
     echo "$value" | addJsonXML.sh "$POM"
   else
     if [ -f "$value" ]; then
+      key="$(tr -d "\0" <<<"$key")"
       filename=$(basename "$value")
       extension="${filename##*.}"
       [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$key"
@@ -116,6 +120,8 @@ fi
 if [[ "$(getParameter .source.params)" != null ]]; then
   while IFS= read -r name &&
         IFS= read -r value; do
+        name="$(tr -d "\0" <<<"$name")"
+	value="$(tr -d "\0" <<<"$value")"
         PARAMS["$name"]=$value
   done < <(echo "$INPUT" | jq -r '.source.params[] | keys[] as $k |  ($k, .[$k] | .)')
 fi
@@ -123,6 +129,8 @@ fi
 if [[ "$(getParameter .params.params)" != null ]]; then
   while IFS= read -r name &&
       IFS= read -r value; do
+      name="$(tr -d "\0" <<<"$name")"
+      value="$(tr -d "\0" <<<"$value")"
       PARAMS["$name"]=$value
   done < <(echo "$INPUT" | jq -r '.params.params[] | keys[] as $k |  ($k, .[$k] | .)')
 fi
