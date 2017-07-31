@@ -72,7 +72,7 @@ if [[ "$(getParameter .source.pom.add)" != null ]]; then
   if [ "$key" == "file" ]; then
     filename=$(basename "$value")
     extension="${filename##*.}"
-    [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$NPOM"
+    [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$POM"
     [ "$extension" == "json" ] && cat "$value" | $RES/addJsonXML.sh "$POM"
   elif [ "$key" == "config" ]; then
     echo "$value" | addJsonXML.sh "$POM"
