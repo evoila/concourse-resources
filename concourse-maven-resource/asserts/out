@@ -20,6 +20,15 @@ getParameterExt() {
   echo "$1" | jq --raw-output $2
 }
 
+addPomFile() {
+  value="$1"
+  NPOM="$2"
+  filename=$(basename "$value")
+  extension="${filename##*.}"
+    [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$NPOM"
+    [ "$extension" == "json" ] && cat "$value" | $RES/addJsonXML.sh "$NPOM"
+}
+
 # from source
 PRIV_REPOS=`getParameter ".source.privateRepos"`
 EXCLUDE_DIR=`getParameter ".source.cache.excludeCache"`
@@ -69,12 +78,15 @@ if [[ "$(getParameter .source.pom.add)" != null ]]; then
   while IFS= read -r key &&
         IFS= read -r value; do
   if [ "$key" == "file" ]; then
-    filename=$(basename "$value")
-    extension="${filename##*.}"
-    [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$POM"
-    [ "$extension" == "json" ] && cat "$value" | $RES/addJsonXML.sh "$POM"
+    addPomFile "$value" "$POM"
   elif [ "$key" == "config" ]; then
-    echo "$value" | addJsonXML.sh "$POM" 
+    echo "$value" | addJsonXML.sh "$POM"
+  else
+    if [ -f "$value" ]; then
+      addPomFile "$value" "$key"
+    elif jq .  2>&1 1>/dev/null <<<"$value"; then
+      echo "$value" | addJsonXML.sh "$key"
+    fi
   fi
 done < <(echo  "$INPUT"  | jq  -c -r  '.source.pom.add[] |keys[] as $k |  ($k, .[$k] | .)')
 fi 
@@ -83,12 +95,15 @@ if [[ "$(getParameter .params.pom.add)" != null ]]; then
   while IFS= read -r key &&
         IFS= read -r value; do
    if [ "$key" == "file" ]; then
-    filename=$(basename "$value")
-    extension="${filename##*.}"
-    [ "$extension" == "yml" ] && python -c 'import sys, yaml, json; json.dump(yaml.load(sys.stdin), sys.stdout, indent=4)' < "$value" | $RES/addJsonXML.sh "$POM"
-    [ "$extension" == "json" ] && cat "$value" | $RES/addJsonXML.sh "$POM"
+    addPomFile "$value" "$POM"
   elif [ "$key" == "config" ]; then
-    echo "$value" | addJsonXML.sh "$POM" 
+    echo "$value" | addJsonXML.sh "$POM"
+  else
+    if [ -f "$value" ]; then
+      addPomFile "$value" "$key"
+    elif jq .  2>&1 1>/dev/null <<<"$value"; then
+      echo "$value" | addJsonXML.sh "$key"
+    fi
   fi
 done < <(echo  "$INPUT"  | jq  -c -r  '.params.pom.add[] |keys[] as $k |  ($k, .[$k] | .)')
 fi
