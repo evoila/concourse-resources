@@ -16,29 +16,35 @@ GET_USERNAME="$(getParameter .source.get.username)"
 GET_REPOSITORY="$(getParameter .source.get.repository)"
 GET_GROUP="$(getParameter .source.get.group)"
 GET_ARTIFACT="$(getParameter .source.get.artifact)"
+GET_LASTUPDATE="$(getParameter .source.get.lastupdate)"
+GET_REGEX="$(getParameter .source.get.regex)"
 
 # from version
 VERSION="$(getParameter .version.version)"
 
 
-
+lastUpdated=""
 
 if [[ "$(getParameter .source.get)" != null  ]]; then 
 METADATA_URL="${GET_REPOSITORY}/${GET_GROUP//.//}/${GET_ARTIFACT}/maven-metadata.xml"
 VERSION_RANGE_SELECTOR="$"
-if [[ "$(getParameter .source.get.regex)" != null ]]; then 
-curl -u "$GET_USERNAME:$GET_PASSWORD"  --fail "$METADATA_URL" \
+res="$(curl -u "$GET_USERNAME:$GET_PASSWORD"  --fail "$METADATA_URL")"
+[[ "$GET_LASTUPDATE" != null ]] && lastUpdated=",\"updated\":\"$( xmlstarlet sel --template --value-of /metadata/versioning/lastUpdated <<<"$res")\"" 
+if [[ "$(GET_REGEX)" != null ]]; then 
+echo "$res" \
   | xmlstarlet sel --template --value-of /metadata/versioning/versions/version \
   | grep -e "$(getParameter .source.get.regex)" \
   | sed -n "${VERSION_RANGE_SELECTOR}p" \
-  | sed 's/.*/{ "version": "&" }/' \
+  | sed "s/.*/{ \"version\": \"&\" $
+lastUpdated }/" \
   | jq --slurp . >&3
   exit 0
 else
-  curl -u "$GET_USERNAME:$GET_PASSWORD"  --fail "$METADATA_URL" \
+echo "$res" \
   | xmlstarlet sel --template --value-of /metadata/versioning/versions/version \
   | sed -n "${VERSION_RANGE_SELECTOR}p" \
-  | sed 's/.*/{ "version": "&" }/' \
+  | sed "s/.*/{ \"version\": \"&\" $
+lastUpdated }/" \
   | jq --slurp . >&3
   exit 0
 fi
