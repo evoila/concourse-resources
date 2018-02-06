@@ -30,21 +30,19 @@ METADATA_URL="${GET_REPOSITORY}/${GET_GROUP//.//}/${GET_ARTIFACT}/maven-metadata
 VERSION_RANGE_SELECTOR="$"
 res="$(curl -u "$GET_USERNAME:$GET_PASSWORD"  --fail "$METADATA_URL")"
 [[ "$GET_LASTUPDATE" != null ]] && lastUpdated=",\"updated\":\"$( xmlstarlet sel --template --value-of /metadata/versioning/lastUpdated <<<"$res")\"" 
-if [[ "$(GET_REGEX)" != null ]]; then 
+if [[ "$GET_REGEX" != null ]]; then 
 echo "$res" \
   | xmlstarlet sel --template --value-of /metadata/versioning/versions/version \
   | grep -e "$(getParameter .source.get.regex)" \
   | sed -n "${VERSION_RANGE_SELECTOR}p" \
-  | sed "s/.*/{ \"version\": \"&\" $
-lastUpdated }/" \
+  | sed "s/.*/{ \"version\": \"&\" $lastUpdated }/" \
   | jq --slurp . >&3
   exit 0
 else
 echo "$res" \
   | xmlstarlet sel --template --value-of /metadata/versioning/versions/version \
   | sed -n "${VERSION_RANGE_SELECTOR}p" \
-  | sed "s/.*/{ \"version\": \"&\" $
-lastUpdated }/" \
+  | sed "s/.*/{ \"version\": \"&\" $lastUpdated }/" \
   | jq --slurp . >&3
   exit 0
 fi
