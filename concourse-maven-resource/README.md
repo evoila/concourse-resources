@@ -93,7 +93,7 @@ erzeugt in der pom:
     <pluginManagement>
       <plugins>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>: maven-deploy-plugin</artifactId>
+        <artifactId>maven-deploy-plugin</artifactId>
       </plugins>
     </pluginManagement>
   </build>
