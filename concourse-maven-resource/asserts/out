@@ -9,6 +9,12 @@ export RES="/opt/resource"
 DESTINATION_DIR="$1"
 INPUT="$(cat)"
 
+TMPDIR=${TMPDIR:-/tmp}
+
+payload=$(mktemp "$TMPDIR/cf-cli-resource-request.XXXXXX")
+
+cat > $payload <&0
+
 cd $DESTINATION_DIR
 
 
