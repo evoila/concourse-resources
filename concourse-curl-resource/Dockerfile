@@ -1,4 +1,4 @@
-FROM evoila/concourse
+FROM evoila/concourse-alg
 
 ADD assets/ /opt/resource/
 
