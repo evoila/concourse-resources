@@ -28,4 +28,4 @@ trueValue="true"
 
 final_url="$args_security $url"
 
-echo "$final_url" >&3
+echo "{\"version\":\"$final_url\"}" >&3
