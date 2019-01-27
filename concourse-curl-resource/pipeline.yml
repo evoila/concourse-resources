@@ -1,0 +1,41 @@
+resource_types:
+- name: file-url
+  type: docker-image
+  source:
+    repository: pivotalservices/concourse-curl-resource
+    tag: latest
+
+resources:
+- name: my-file-with-last-modified-info
+  type: file-url
+  source:
+    url: http://www-us.apache.org/dist/lucene/java/5.5.4/lucene-5.5.4-src.tgz
+    filename: lucene-5.5.4-src.tgz
+- name: my-file-without-last-modified-info
+  type: file-url
+  source:
+    url: https://raw.githubusercontent.com/pivotalservices/concourse-curl-resource/master/test/data/pivotal-1.0.0.txt
+    filename: pivotal-1.0.0.txt
+
+jobs:
+- name: run-and-get-files
+  plan:
+  - get: my-file-with-last-modified-info
+  - get: my-file-without-last-modified-info
+  - task: run-and-get-file
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: ubuntu
+          tag: "latest"
+      inputs:
+      - name: my-file-with-last-modified-info
+      - name: my-file-without-last-modified-info
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          find .
