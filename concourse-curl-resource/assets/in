@@ -54,4 +54,4 @@ fi
 
 curl "-L" $args_security "$args_url" "-o" "$filename"
 
-jq -n "{ version: {version: $version}}" >&3
+jq -n "{ version: {version: \"$version\"}}" >&3
