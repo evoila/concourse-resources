@@ -1,7 +1,7 @@
 # concourse-maven-resource
-Dies ist das Docker image welches für das builden und cachen der jar in der Concourse Pipeline verwendet wird.
+This is the docker image used for building, caching and get the jar in the Concourse pipeline. 
 
-## Einrichtung
+## Resource Definition
 ```yaml
 resource_types:
 - name: maven-resource
@@ -11,82 +11,84 @@ resource_types:
     tag: latest
 ```
 
-## Verwendung
-Als Cache(Ftp server):
+## Source
+### As cache(Ftp server):
 ```yaml
 resources:
 - name: 
   type: maven-resource
   source:
     cache:
-      username:     % ftp benutzername    
-      password:     % ftp passwort
+      username:     % ftp username   
+      password:     % ftp password
       server:       % ftp server url
-      path:         % ftp remote pfad 
+      path:         % ftp remote path 
       file:         % ftp remote file name
-      localPath:    % local pfad, selbe wie name
-      excludeCache: % files die nicht in den cache kommen
-        - de/evoila % schließe groub de.evoila aus weil generierte jar cache dauerhat wachsen lässt
+      localPath:    % local path to save file
+      excludeCache: % files do not chache in tar file
+        - de/evoila % exclude group de.evoila, this group build from resource 
 ```
-Zum Downloaden von jar:
+### Get jar:
 ```yaml
 resources:
 - name:
   type: maven-resource
   source:
     get:
-      username:     % ftp benutzername
-      password:     % ftp passwort
+      username:     % ftp username
+      password:     % ftp password
       repository:   % ftp server url
       group:        % group id
       artifact:     % artifact id
-      fileName:     % lokalen namen der verwendet wird
-      lastupdate: 1 % Benutze update Datum um Änderungen auch bei gleiche version zu erkennen 
+      fileName:     % local file name for jar
+      lastupdate: 1 % use update date for check version changes, not only version number 
 ```
 
-builden von jar deklaration:
+### Build jar:
 ```yaml
 resources:
-- name: (( grab  meta.resource.maven.name ))
+- name: 
   type: maven-resource
   source:
     pom:
       add: 
-      - pom.xml: file % Datei dessen inhalt genutzt wird um die Pom zu erweitern format wird später erklärt
-    privateRepos:  % gerneriert m2 settings.xml
+      - pom.xml: file % pom file to make changes
+    privateRepos:  % generate repository settings in  m2 settings.xml
     - repo:
-        id:        % muss mit deploment in pom.xml übereinstimmen
+        id:        % the same used in  pom.xml
         url:       % ftp server url 
-        username:  % ftp server benutzername
-        password:  % ftp server passwort
+        username:  % ftp server username
+        password:  % ftp server password
     params:
-    - name: value  % Parameter die über PARAMS[name] im bashscript adressiert werden können
+    - name: value  % define parms can git in bash script with PARAMS[name]
 ```
+
+## Put
 builden von jar put:
 ```yaml
 put:
   params:
     pom:
-      file: git-osb-samba/pom.xml % Startpunkt zur Ersetzung versionsnummern in script mit  
-    script:                     % script welches zum builden nach erweitern der pom zum builden ausgeführt wird.
-    updateCache: true            % soll der cache aktualisiert werden, default false
-    version:                      % versionsfile oder nummer von jar in bash VERSION[main]
+      file: git-osb-samba/pom.xml % pom to begin replace version number 
+    script:                     % path to bashscript call mvn
+    updateCache: true            % update cache, default false
+    version:                      % versionsfile or number for jar, reference in bash with VERSION[main]
     versions:
-    - name: value                 %  versionsfile oder nummer in bash VERSION[name]
-    params:                       % paremeter in bash PARAMS[name]
+    - name: value                 %  versionsfile or number, reference in bash with VERSION[name]
+    params:                       % params in bash reference PARAMS[name]
     - name: value
 ```
 
 
-Fileformat pom.add:
+File format pom.add:
 ```yaml
-path: /project/build/pluginManagement/plugins % pfad ohne platzhalter in pom, muss existieren
-insert:                                       % folgende ausdruck wird als xml in den Pfad engefügt
+path: /project/build/pluginManagement/plugins % patch without placeholder in pom, musst exist
+insert:                                       % the next line add as xml child from path 
   plugin:
     groupId: org.apache.maven.plugins
     artifactId: maven-deploy-plugin
 ```
-erzeugt in der pom:
+create in the pom:
 ```xml
 <project>
   <build>
