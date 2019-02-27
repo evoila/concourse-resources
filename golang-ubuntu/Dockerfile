@@ -9,7 +9,7 @@ RUN  apt update && apt upgrade -y && apt install -y curl wget vim sed build-esse
      && echo 'export GOPATH=$HOME/go' >> ~/.profile  \
      && echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.profile  \
      && . ~/.profile  \
-     && mkdir -p ~/go/bin  \
+     && mkdir -p ~/go/bin ~/go/src  \
      && curl https://glide.sh/get | sh  \
      && wget -qO - http://packages.confluent.io/deb/5.1/archive.key | apt-key add -  \
      && echo "deb [arch=amd64] http://packages.confluent.io/deb/5.1 stable main" >> /etc/apt/sources.list  \
