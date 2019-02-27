@@ -14,5 +14,5 @@ RUN  apt update && apt upgrade -y && apt install -y curl pkg-config wget vim sed
      && wget -qO - http://packages.confluent.io/deb/5.1/archive.key | apt-key add -  \
      && echo "deb [arch=amd64] http://packages.confluent.io/deb/5.1 stable main" >> /etc/apt/sources.list  \
      && apt update  \
-     && apt install -y librdkafka-dev && \
+     && apt install -y librdkafka-dev \
      && apt clean
