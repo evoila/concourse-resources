@@ -5,6 +5,7 @@ RUN  apt update && apt upgrade -y && apt install -y curl wget vim  \
      && tar -xvf go*  \
      && mv go /usr/local/  \
      && rm go*  \
+     && echo '. ~/.profile' >> /etc/profile.d/home.sh \
      && echo 'export GOPATH=$HOME/go' >> ~/.profile  \
      && echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.profile  \
      && . ~/.profile  \
