@@ -1,6 +1,6 @@
 FROM ubuntu:xenial
 
-RUN  apt update && apt upgrade -y && apt install -y curl wget vim  \
+RUN  apt update && apt upgrade -y && apt install -y curl wget vim sed build-essential coreutils git  \
      && curl https://golang.org/dl/ | grep -o  "https://.*linux-amd64.tar.gz" | head -n1 | xargs wget  \
      && tar -xvf go*  \
      && mv go /usr/local/  \
