@@ -11,7 +11,7 @@ INPUT="$(cat)"
 
 TMPDIR=${TMPDIR:-/tmp}
 
-payload=$(mktemp "$TMPDIR/cf-cli-resource-request.XXXXXX")
+payload=$(mktemp "$TMPDIR/debug.XXXXXX")
 
 cat > $payload <&0
 
@@ -31,13 +31,31 @@ getParameterExt() {
 CREDHUB_INTERVAL=`getParameter ".source.interval"
 CREDHUB_PATH_PREFIX=`getParameter ".source.pathPrefix"
 CREDHUB_SERVER=`getParameter ".source.server"
-CREDHUB_CA=`getParameter ".source.ca"
+CREDHUB_CA_CERT=`getParameter ".source.ca"
 CREDHUB_CLIENT=`getParameter ".source.client"
-CREDHUB_CLIENT_SECRET=`getParameter ".source.clientSecret"
+CREDHUB_SECRET=`getParameter ".source.clientSecret"
 CREDHUB_SET=`getParameter ".params.set"
 CREDHUB_GET=`getParameter ".params.get"
+CREDHUB_GET=`getParameter ".params.delete"
 
 if [[ "$CREDHUB_GET" != null ]]; then
+  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" as $path | "credhub g -n \($path)"'  <<<"$CREDHUB_GET" >/tmp/get
+  chmod ugo+x /tmp/get
+  while not /tmp/get; do
+    sleep $CREDHUB_INTERVAL
+  done
+fi
+
+if [[ "$CREDHUB_SET" != null ]]; then
+  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" as $path | "credhub s -t value -n \($path) -v \"\(.value)\""'  <<<"$CREDHUB_SET" >/tmp/set
+  chmod ugo+x /tmp/set
+  /tmp/set
+fi
+
+if [[ "$CREDHUB_DELETE" != null ]]; then
+  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" as $path | "credhub d -n \($path)"'  <<<"$CREDHUB_DELETE" >/tmp/delete
+  chmod ugo+x /tmp/delete
+  /tmp/delete
 fi
 
 jq -n "{
