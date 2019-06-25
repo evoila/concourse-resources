@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e -u
+
+exec 3>&1 # make stdout available as fd 3 for the result
+
+export RES="/opt/resource"
+
+DESTINATION_DIR="$1"
+INPUT="$(cat)"
+
+TMPDIR=${TMPDIR:-/tmp}
+
+payload=$(mktemp "$TMPDIR/cf-cli-resource-request.XXXXXX")
+
+cat > $payload <&0
+
+cd $DESTINATION_DIR
+
+
+getParameter() {
+  echo "$INPUT" | jq --raw-output $1
+}
+
+getParameterExt() {
+  echo "$1" | jq --raw-output $2
+}
+
+
+# from source
+CREDHUB_INTERVAL=`getParameter ".source.interval"
+CREDHUB_PATH_PREFIX=`getParameter ".source.pathPrefix"
+CREDHUB_SERVER=`getParameter ".source.server"
+CREDHUB_CA=`getParameter ".source.ca"
+CREDHUB_CLIENT=`getParameter ".source.client"
+CREDHUB_CLIENT_SECRET=`getParameter ".source.clientSecret"
+CREDHUB_SET=`getParameter ".params.set"
+CREDHUB_GET=`getParameter ".params.get"
+
+if [[ "$CREDHUB_GET" != null ]]; then
+fi
+
+jq -n "{
+  version: {version: \"1\"},
+}" >&3
