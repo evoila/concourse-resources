@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e -u
+set -u
 
 exec 3>&1 # make stdout available as fd 3 for the result
 
@@ -47,7 +47,8 @@ if [[ "$CREDHUB_GET" != null ]]; then
     /tmp/get
     if [ "$?" -eq 0 ]; then
        break
-    fi 
+    fi
+    echo "wait" >&2
     sleep $CREDHUB_INTERVAL
   done
 fi
