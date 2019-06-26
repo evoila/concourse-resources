@@ -28,15 +28,15 @@ getParameterExt() {
 
 
 # from source
-CREDHUB_INTERVAL=`getParameter ".source.interval"
-CREDHUB_PATH_PREFIX=`getParameter ".source.pathPrefix"
-CREDHUB_SERVER=`getParameter ".source.server"
-CREDHUB_CA_CERT=`getParameter ".source.ca"
-CREDHUB_CLIENT=`getParameter ".source.client"
-CREDHUB_SECRET=`getParameter ".source.clientSecret"
-CREDHUB_SET=`getParameter ".params.set"
-CREDHUB_GET=`getParameter ".params.get"
-CREDHUB_GET=`getParameter ".params.delete"
+CREDHUB_INTERVAL=`getParameter ".source.interval"`
+CREDHUB_PATH_PREFIX=`getParameter ".source.pathPrefix"`
+CREDHUB_SERVER=`getParameter ".source.server"`
+CREDHUB_CA_CERT=`getParameter ".source.ca"`
+CREDHUB_CLIENT=`getParameter ".source.client"`
+CREDHUB_SECRET=`getParameter ".source.clientSecret"`
+CREDHUB_SET=`getParameter ".params.set"`
+CREDHUB_GET=`getParameter ".params.get"`
+CREDHUB_GET=`getParameter ".params.delete"`
 
 credhub login
 
