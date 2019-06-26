@@ -43,11 +43,7 @@ credhub login
 if [[ "$CREDHUB_GET" != null ]]; then
   jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end) as $path | "credhub g -n \($path)")'  <<<"$CREDHUB_GET" >/tmp/get
   chmod ugo+x /tmp/get
-  while  :; do
-    /tmp/get
-    if [ "$?" -eq 0 ]; then
-       break
-    fi
+  until /tmp/get; do
     echo "wait" >&2
     sleep $CREDHUB_INTERVAL
   done
