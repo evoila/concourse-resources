@@ -36,7 +36,7 @@ export CREDHUB_CLIENT=`getParameter ".source.client"`
 export CREDHUB_SECRET=`getParameter ".source.clientSecret"`
 CREDHUB_SET=`getParameter ".params.set"`
 CREDHUB_GET=`getParameter ".params.get"`
-CREDHUB_GET=`getParameter ".params.delete"`
+CREDHUB_DELETE=`getParameter ".params.delete"`
 
 credhub login
 
