@@ -1,0 +1,6 @@
+#!/bin/bash -eu
+
+set -e -u
+
+jq -n "[{version: \"$(date)\"}
+]" >&3

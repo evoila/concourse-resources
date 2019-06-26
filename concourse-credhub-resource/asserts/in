@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+exec 3>&1 # make stdout available as fd 3 for the result
+#exec 1>&2 # redirect all output to stderr for logging
+exec 1>/var/log/in.log
+DESTINATION_DIR="$1"
+INPUT="$(cat)"
+
+getParameter() {
+  echo "$INPUT" | jq --raw-output $1
+}
+
+
+echo $INPUT
+
+echo "--------------------in--------------------------"
+
+# from version
+VERSION="$(getParameter .version.version)"
+
+CREDHUB_SERVER: "$(getParameter .source.server)"
+CREDHUB_CLIENT: "$(getParameter .source.client)"
+CREDHUB_SECRET: "$(getParameter .source.secret)"
+CREDHUB_CA_CERT: "$(getParameter .source.ca)"
+
+CREDENTIALS_YML="$(getParameter .source.config)"
+
+credhub login
+read_tmp="$(mktemp /tmp/creds_read.XXXXXXXX)"
+
+echo "$CREDENTIALS_YML" | ruby -rjson -ryaml -e "puts JSON.pretty_generate(YAML.load(STDIN.read))" | jq --arg "out" "${DESTINATION_DIR:=.}" -r  '
+.credentials.get?[] | 
+    .path as $path | 
+    .refs[] | 
+       (.fields[]? // null) as $field |
+       "\(.["var-name"])\(($field//empty|"_\(.)")//"")"  as $env_name | 
+       "\($out)/\($env_name)\(.["file-extension"]//"")"  as $file_name | 
+       "export \($env_name)=\"$(credhub g -j -n \($path)/\(.key) \(($field//empty|"-k \(.)")//"") | jq -r .value | tee \"\($file_name)\" \((.default//empty|" ; [ ! -s \"\($file_name)\" ] &&  echo \"\(.)\" | tee \"\($file_name)\"")//""))"' >$read_tmp
+. $read_tmp
+
+if [[ "$VERSION" = null ]] || [ "$VERSION" = "" ]; then
+VERSION=1
+fi
+
+jq -n "{
+  version: { version: \"$VERSION\" }
+}" >&3
+
