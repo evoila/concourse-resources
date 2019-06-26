@@ -41,7 +41,7 @@ CREDHUB_DELETE=`getParameter ".params.delete"`
 credhub login
 
 if [[ "$CREDHUB_GET" != null ]]; then
-  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end as $path | "credhub g -n \($path)"'  <<<"$CREDHUB_GET" >/tmp/get
+  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|(if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end) as $path | "credhub g -n \($path)"'  <<<"$CREDHUB_GET" >/tmp/get
   chmod ugo+x /tmp/get
   while not /tmp/get; do
     sleep $CREDHUB_INTERVAL
@@ -49,13 +49,13 @@ if [[ "$CREDHUB_GET" != null ]]; then
 fi
 
 if [[ "$CREDHUB_SET" != null ]]; then
-  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end as $path | "credhub s -t value -n \($path) -v \"\(.value)\""'  <<<"$CREDHUB_SET" >/tmp/set
+  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|(if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end) as $path | "credhub s -t value -n \($path) -v \"\(.value)\""'  <<<"$CREDHUB_SET" >/tmp/set
   chmod ugo+x /tmp/set
   /tmp/set
 fi
 
 if [[ "$CREDHUB_DELETE" != null ]]; then
-  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end as $path | "credhub d -n \($path)"'  <<<"$CREDHUB_DELETE" >/tmp/delete
+  jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '"#!/bin/bash","set -e",.[]|(if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end) as $path | "credhub d -n \($path)"'  <<<"$CREDHUB_DELETE" >/tmp/delete
   chmod ugo+x /tmp/delete
   /tmp/delete
 fi
