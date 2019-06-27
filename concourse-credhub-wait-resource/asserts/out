@@ -13,7 +13,7 @@ TMPDIR=${TMPDIR:-/tmp}
 
 payload=$(mktemp "$TMPDIR/debug.XXXXXX")
 
-cat > $payload <&0
+echo "$INPUT" > $payload
 
 cd $DESTINATION_DIR
 
