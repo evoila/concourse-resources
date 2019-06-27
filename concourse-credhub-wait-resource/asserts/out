@@ -28,6 +28,9 @@ getParameterExt() {
 
 
 # from source
+if [ "$(getParameter ".source.debug")" == "true" ]; then
+  set -x
+fi
 CREDHUB_INTERVAL=`getParameter ".source.interval"`
 CREDHUB_PATH_PREFIX=`getParameter ".source.pathPrefix"`
 export CREDHUB_SERVER=`getParameter ".source.server"`
