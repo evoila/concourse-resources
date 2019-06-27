@@ -49,7 +49,7 @@ credhub login
 if [[ "$CREDHUB_GET" != null ]]; then
   jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end) as $path | "credhub g -n \"\($path)\"")'  <<<"$CREDHUB_GET" >/tmp/get
   chmod ugo+x /tmp/get
-  until /tmp/get; do
+  until /tmp/get 2>/dev/null; do
     echo "wait" >&2
     sleep $CREDHUB_INTERVAL
   done
@@ -57,14 +57,14 @@ fi
 
 if [[ "$CREDHUB_SET" != null ]]; then
   jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end) as $path | "credhub s -t value -n \"\($path)\" -v \"\(.value)\"")'  <<<"$CREDHUB_SET" >/tmp/set
-  chmod ugo+x /tmp/set
+  chmod ugo+x /tmp/set 2>/dev/null
   /tmp/set
 fi
 
 if [[ "$CREDHUB_DELETE" != null ]]; then
   jq -r --arg "prefix" "$CREDHUB_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.|startswith("/")) then "\(.)" else "\($prefix)\(.)" end) as $path | "credhub d -n \"\($path)\"")'  <<<"$CREDHUB_DELETE" >/tmp/delete
   chmod ugo+x /tmp/delete
-  /tmp/delete
+  /tmp/delete 2>/dev/null
 fi
 
 jq -n "{
