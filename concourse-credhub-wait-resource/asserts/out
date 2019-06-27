@@ -30,6 +30,9 @@ getParameterExt() {
 # from source
 if [ "$(getParameter ".source.debug")" == "true" ]; then
   set -x
+  exec 1>&2 
+else
+   exec 1> /dev/null
 fi
 CREDHUB_INTERVAL=`getParameter ".source.interval"`
 CREDHUB_PATH_PREFIX=`getParameter ".source.pathPrefix"`
