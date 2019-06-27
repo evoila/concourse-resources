@@ -65,5 +65,5 @@ if [[ "$CREDHUB_DELETE" != null ]]; then
 fi
 
 jq -n "{
-  version: {version: \"1\"},
+  version: {version: \"1\"}
 }" >&3
