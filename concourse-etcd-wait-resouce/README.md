@@ -1,13 +1,13 @@
-# concourse-maven-resource
-This is the docker image used for building, caching and get the jar in the Concourse pipeline. 
+# concourse-etcd-wait-resource
+This is the docker image used for waiting a key in etcd exist with a value 
 
 ## Resource Definition
 ```yaml
 resource_types:
-- name: maven-resource
+- name: etcd-wait
   type: docker-image
   source:
-    repository: evoila/concourse-mvn-resource
+    repository: evoila/concourse-etcd-wait-resource
     tag: latest
 ```
 
@@ -16,88 +16,31 @@ resource_types:
 ```yaml
 resources:
 - name: 
-  type: maven-resource
+  type: etcd-wait
   source:
     cache:
-      username:     % ftp username   
-      password:     % ftp password
-      server:       % ftp server url
-      path:         % ftp remote path 
-      file:         % ftp remote file name
-      localPath:    % local path to save file
-      excludeCache: % files do not chache in tar file
-        - de/evoila % exclude group de.evoila, this group build from resource 
+      server:       % etcd server url
+      pathPrefix:       % etcd key path prefix used no absulate path is get
 ```
-### Get jar:
+### wait:
 ```yaml
 resources:
 - name:
-  type: maven-resource
+  type: etcd-wait
   source:
     get:
-      username:     % ftp username
-      password:     % ftp password
-      repository:   % ftp server url
-      group:        % group id
-      artifact:     % artifact id
-      fileName:     % local file name for jar
-      lastupdate: 1 % use update date for check version changes, not only version number 
+      path:         % key path
+      value:        % value to wait(grep regex)
 ```
 
-### Build jar:
+### set:
 ```yaml
 resources:
-- name: 
-  type: maven-resource
+- name:
+  type: etcd-wait
   source:
-    pom:
-      add: 
-      - pom.xml: file % pom file to make changes
-    privateRepos:  % generate repository settings in  m2 settings.xml
-    - repo:
-        id:        % the same used in  pom.xml
-        url:       % ftp server url 
-        username:  % ftp server username
-        password:  % ftp server password
-    params:
-    - name: value  % define parms can git in bash script with PARAMS[name]
+    set:
+      path:         % key path
+      value:        % value to set
 ```
 
-## Put
-builden von jar put:
-```yaml
-put:
-  params:
-    pom:
-      file: git-osb-samba/pom.xml % pom to begin replace version number 
-    script:                     % path to bashscript call mvn
-    updateCache: true            % update cache, default false
-    version:                      % versionsfile or number for jar, reference in bash with VERSION[main]
-    versions:
-    - name: value                 %  versionsfile or number, reference in bash with VERSION[name]
-    params:                       % params in bash reference PARAMS[name]
-    - name: value
-```
-
-
-File format pom.add:
-```yaml
-path: /project/build/pluginManagement/plugins % patch without placeholder in pom, musst exist
-insert:                                       % the next line add as xml child from path 
-  plugin:
-    groupId: org.apache.maven.plugins
-    artifactId: maven-deploy-plugin
-```
-create in the pom:
-```xml
-<project>
-  <build>
-    <pluginManagement>
-      <plugins>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-      </plugins>
-    </pluginManagement>
-  </build>
-</project>
-```

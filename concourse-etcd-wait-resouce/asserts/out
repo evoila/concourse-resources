@@ -34,7 +34,6 @@ if [ "$(getParameter ".source.debug")" == "true" ]; then
 else
    exec 1> /dev/null
 fi
-ETCD_INTERVAL=`getParameter ".source.interval"`
 ETCD_PATH_PREFIX=`getParameter ".source.pathPrefix"`
 export ETCD_SERVER=`getParameter ".source.server"`
 ETCD_SET=`getParameter ".params.set"`
@@ -43,7 +42,7 @@ ETCD_DELETE=`getParameter ".params.delete"`
 
 
 if [[ "$ETCD_GET" != null ]]; then
-  jq -r --arg "prefix" "$ETCD_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.key|startswith("/")) then "\(.key)" else "\($prefix)\(.key)" end) as $path | (.value?/"*") as $value | "etcdctl --endpoints \"$ETCD_SERVER\" get \"\($path)\" | grep -q \"\($value)\" || { echo \"wait on key(\($path))  with value (\($value))\"; until etcdctl --endpoints \"$ETCD_SERVER\" watch \"\($path)\" | grep -q "\($value)\"; do echo \"wait on key(\($path))  with value (\($value))\" "; done }")'  <<<"$ETCD_GET" >/tmp/get
+  jq -r --arg "prefix" "$ETCD_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end) as $path | (.value?/"*") as $value | "etcdctl --endpoints \"$ETCD_SERVER\" get \"\($path)\" | grep -q \"\($value)\" || { echo \"wait on key(\($path))  with value (\($value))\"; until etcdctl --endpoints \"$ETCD_SERVER\" watch \"\($path)\" | grep -q "\($value)\"; do echo \"wait on key(\($path))  with value (\($value))\" "; done }")'  <<<"$ETCD_GET" >/tmp/get
   chmod ugo+x /tmp/get
   /tmp/get 2>/dev/null
   done
