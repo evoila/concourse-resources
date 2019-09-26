@@ -4,6 +4,8 @@ set -u
 
 exec 3>&1 # make stdout available as fd 3 for the result
 
+export ETCDCTL_API=3
+
 export RES="/opt/resource"
 
 DESTINATION_DIR="$1"
@@ -45,11 +47,10 @@ if [[ "$ETCD_GET" != null ]]; then
   jq -r --arg "prefix" "$ETCD_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end) as $path | (.value?/"*") as $value | "etcdctl --endpoints \"$ETCD_SERVER\" get \"\($path)\" | grep -q \"\($value)\" || { echo \"wait on key(\($path))  with value (\($value))\"; until etcdctl --endpoints \"$ETCD_SERVER\" watch \"\($path)\" | grep -q "\($value)\"; do echo \"wait on key(\($path))  with value (\($value))\" "; done }")'  <<<"$ETCD_GET" >/tmp/get
   chmod ugo+x /tmp/get
   /tmp/get 2>/dev/null
-  done
 fi
 
 if [[ "$ETCD_SET" != null ]]; then
-  jq -r --arg "prefix" "$ETCD_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end) as $path | "etcdctl --endpoints \"$ETCD_SERVER\" set  \"\($path)\" \"\(.value)\"")'  <<<"$ETCD_SET" >/tmp/set
+  jq -r --arg "prefix" "$ETCD_PATH_PREFIX" '("#!/bin/bash"),("set -e"),(.[]|(if (.path|startswith("/")) then "\(.path)" else "\($prefix)\(.path)" end) as $path | "etcdctl --endpoints \"$ETCD_SERVER\" put  \"\($path)\" \"\(.value)\"")'  <<<"$ETCD_SET" >/tmp/set
   chmod ugo+x /tmp/set 2>/dev/null
   /tmp/set
 fi
