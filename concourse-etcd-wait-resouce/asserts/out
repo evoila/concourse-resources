@@ -4,7 +4,7 @@ set -u
 
 exec 3>&1 # make stdout available as fd 3 for the result
 
-export ETCDCTL_API=3
+export ETCDCTL_API=2
 
 export RES="/opt/resource"
 
