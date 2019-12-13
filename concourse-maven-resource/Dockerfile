@@ -1,4 +1,4 @@
-FROM maven:3.6.1-jdk-12
+FROM maven:3.6.3-jdk-11
 
 RUN yum update -y \
     && yum install -y \
