@@ -1,4 +1,4 @@
-FROM maven:3.6.3-jdk-11
+FROM concourse-maven-resource:latest
 
 RUN apt-get update \
     && apt-get upgrade -y \
