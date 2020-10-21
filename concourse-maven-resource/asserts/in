@@ -43,8 +43,8 @@ if [[ "$(getParameter .source.get)" != null ]]; then
   ARTIFACT_URL="${REPOSITORY}/${GROUP//.//}/${ARTIFACT}/${VERSION}/${ARTIFACT_FILE_NAME}"
   [[ "$FILE_NAME" == null ]] && FILE_NAME=$ARTIFACT_FILE_NAME
   if grep -q "sftp://" "${REPOSITORY}"; then
-    mkdir -p /root/.ssh
-    ssh-keyscan ${REPOSITORY$#"sftp://"}  -p 22
+    mkdir -p ~/.ssh
+    ssh-keyscan ${REPOSITORY$#"sftp://"}  -p 22 >~/.ssh/known_hosts
   fi
   curl -k -u "$GET_USERNAME:$GET_PASSWORD" --fail --output "$DESTINATION_DIR/$FILE_NAME" "$ARTIFACT_URL"
   echo "${VERSION}" > "$DESTINATION_DIR/version"
