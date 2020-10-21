@@ -64,7 +64,7 @@ while IFS= read -r url &&
      PRIVATE_REPO["$ID_URL"]=$url
      PRIVATE_REPO["$ID_PASSWORD"]=$password
      PRIVATE_REPO["$ID_USERNAME"]=$username
-SERVER=`echo -e  "$SERVER\n\t\t<server>\n\t\t\t<id>${ID}</id>\n\t\t\t<username>${PRIVATE_REPO["$ID_USERNAME"]}</username>\n\t\t\t<password>${PRIVATE_REPO["$ID_PASSWORD"]}</password>\n\t\t</server>\n"`
+SERVER=`echo -e  "$SERVER\n\t\t<server>\n\t\t\t<id>${ID}</id>\n\t\t\t<username>${PRIVATE_REPO["$ID_USERNAME"]}</username>\n\t\t\t<password>${PRIVATE_REPO["$ID_PASSWORD"]}</password>\n\t\t\t<configuration>\n\t\t\t\t<strictHostKeyChecking>no</strictHostKeyChecking>\n\t\t\t</configuration>\n\t\t</server>\n"`
 done < <(echo "$INPUT" | jq -r '.source.privateRepos[] | (.repo.url, .repo.id, .repo.username, .repo.password)')
 
   SERVER=`echo -e "$SERVER\t</servers>\n</settings>"`
