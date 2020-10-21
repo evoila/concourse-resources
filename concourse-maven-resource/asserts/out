@@ -228,9 +228,9 @@ if [[ $(getParameter .source.cache) != null ]] && [[ $(getParameter .params.upda
   fi
 
 
-  SPACE=`curl -u "$CACHE_USERNAME:$CACHE_PASSWORD" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE.space"`
+  SPACE=`curl -k -u "$CACHE_USERNAME:$CACHE_PASSWORD" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE.space"`
   if [ "$SPACE" != "$VERSIONE" ]; then
-     [[ "$CACHE_USERNAME" != null ]] && curl -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "$CACHE_FILE" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE" || curl --output "$CACHE_FILE" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE"
+     [[ "$CACHE_USERNAME" != null ]] && curl -k -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "$CACHE_FILE" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE" || curl -k --output "$CACHE_FILE" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE"
     tar -xzf $CACHE_FILE -C $M2_LOCAL
     rm $CACHE_FILE
     VERSIONE=`du -sb  $M2_LOCAL  | grep -o -e "^[0-9]*"`
@@ -240,8 +240,8 @@ if [[ $(getParameter .source.cache) != null ]] && [[ $(getParameter .params.upda
 
   if [ "$VERSIONE" != "$SPACE" ]; then
     tar -zcf  ../$CACHE_FILE . && cd .. 
-    echo "$VERSIONE" > "${CACHE_FILE}.space" && curl --ftp-create-dirs -T "${CACHE_FILE}.space" -u "$CACHE_USERNAME:$CACHE_PASSWORD" "$CACHE_SERVER/$CACHE_PATH/${CACHE_FILE}.space"
-    [[ "$CACHE_USERNAME" != null ]] && curl --ftp-create-dirs -T $CACHE_FILE -u "$CACHE_USERNAME:$CACHE_PASSWORD" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE" || curl -T $CACHE_FILE  "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE"
+    echo "$VERSIONE" > "${CACHE_FILE}.space" && curl -k --ftp-create-dirs -T "${CACHE_FILE}.space" -u "$CACHE_USERNAME:$CACHE_PASSWORD" "$CACHE_SERVER/$CACHE_PATH/${CACHE_FILE}.space"
+    [[ "$CACHE_USERNAME" != null ]] && curl -k --ftp-create-dirs -T $CACHE_FILE -u "$CACHE_USERNAME:$CACHE_PASSWORD" "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE" || curl -k -T $CACHE_FILE  "$CACHE_SERVER/$CACHE_PATH/$CACHE_FILE"
     [[ ! -z $tmpdir ]] && mv $tmpdir/* $M2_LOCAL
   fi
   set -e

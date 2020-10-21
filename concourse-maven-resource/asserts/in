@@ -42,7 +42,7 @@ if [[ "$(getParameter .source.get)" != null ]]; then
   ARTIFACT_FILE_NAME="${ARTIFACT}-${VERSION}${CLASSIFIER_SUFFIX}.${PACKAGING}"
   ARTIFACT_URL="${REPOSITORY}/${GROUP//.//}/${ARTIFACT}/${VERSION}/${ARTIFACT_FILE_NAME}"
   [[ "$FILE_NAME" == null ]] && FILE_NAME=$ARTIFACT_FILE_NAME
-  curl -u "$GET_USERNAME:$GET_PASSWORD" --fail --output "$DESTINATION_DIR/$FILE_NAME" "$ARTIFACT_URL"
+  curl -k -u "$GET_USERNAME:$GET_PASSWORD" --fail --output "$DESTINATION_DIR/$FILE_NAME" "$ARTIFACT_URL"
   echo "${VERSION}" > "$DESTINATION_DIR/version"
 
 
@@ -55,8 +55,8 @@ elif [[ "$(getParameter .source.cache)" != null ]]; then
   CACHE_PATH="$(getParameter .source.cache.path)"
   CACHE_FILE="$(getParameter .source.cache.file)"
   VERSION=1
-  [[ "$CACHE_USERNAME" != null ]] && curl -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "$CACHE_FILE" "$CACHE_SERVER$CACHE_PATH$CACHE_FILE"
-  [[ "$CACHE_USERNAME" != null ]] && curl -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "${CACHE_FILE}.space" "$CACHE_SERVER$CACHE_PATH${CACHE_FILE}.space"
+  [[ "$CACHE_USERNAME" != null ]] && curl -k -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "$CACHE_FILE" "$CACHE_SERVER$CACHE_PATH$CACHE_FILE"
+  [[ "$CACHE_USERNAME" != null ]] && curl -k -u "$CACHE_USERNAME:$CACHE_PASSWORD" --output "${CACHE_FILE}.space" "$CACHE_SERVER$CACHE_PATH${CACHE_FILE}.space"
   [ -e "$CACHE_FILE" ] && mkdir -p $DESTINATION_DIR/M2_REPO/repository &&  tar -xvzf $CACHE_FILE -C $DESTINATION_DIR/M2_REPO/repository && rm $CACHE_FILE
   [ -e "${CACHE_FILE}.space" ] && VERSION=`cat "${CACHE_FILE}.space"` 
   set -e
