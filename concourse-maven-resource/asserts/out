@@ -52,6 +52,8 @@ declare -gA PARAMS
 declare -gA PRIVATE_REPO
 declare -gA VERSION
 if [[ "$PRIV_REPOS" != null ]]; then 
+
+mkdir -p /root/.ssh/
 SERVER=`echo -e  "<settings>\n\t<servers>\n"`
 while IFS= read -r url &&
       IFS= read -r id &&
