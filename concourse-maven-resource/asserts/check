@@ -30,7 +30,7 @@ METADATA_URL="${GET_REPOSITORY}/${GET_GROUP//.//}/${GET_ARTIFACT}/maven-metadata
 VERSION_RANGE_SELECTOR="$"
   if grep -q "sftp://" "${GET_REPOSITORY}"; then
     mkdir -p ~/.ssh
-    ssh-keyscan ${REPOSITORY$#"sftp://"}  -p 22 >~/.ssh/known_hosts
+    ssh-keyscan ${GET_REPOSITORY#"sftp://"}  -p 22 >~/.ssh/known_hosts
   fi
 res="$(curl -u "$GET_USERNAME:$GET_PASSWORD"  --fail "$METADATA_URL")"
 [[ "$GET_LASTUPDATE" != null ]] && lastUpdated=",\"updated\":\"$( xmlstarlet sel --template --value-of /metadata/versioning/lastUpdated <<<"$res")\"" 
